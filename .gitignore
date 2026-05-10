@@ -1,0 +1,8 @@
+Pass.h
+I2C Scanner.cpp
+*.pdf
+*.png
+*.jpg
+Results/
+PCB/
+datasheets/

@@ -1,0 +1,56 @@
+Overview
+
+This project implements an air quality monitor system to monitor 3D printing emissions using an ESP32, BME680, SGP40, and SPS30 sensors. 
+
+3D printing emissions are typically broken down into volatile organic compounds (VOC) and ultrafine particles. These can be harmful when inhaled and are associated with higher risks for various medical conditions. The sensors used were chosen to detect these matters. 
+
+
+Hardware
+
+The project uses an ESP32-WROVER-B mounted on the ESP32 DevKit C. This provides a microcontroller a variety of peripherals to connect the sensors, as well as WIFI capabilities to host its own webserver. 
+
+The BME680 is a general atmospheric condition sensor. It can detect a variety of atmospheric conditions, including temperature and humidity, which is required for the operation of the SGP40. It also returns a rough indication of VOC count using its gas resistance measurement, which can be compared to the VOC index calculated by the SGP40. Gas resistance is measured in kOhm. The absolute value is meaningless, but deviation over time represents an increase or decrease in VOCs. A lower resistance denotes an increase in VOC count. 
+The BSEC library allows for more precise VOC measurements. I plan to include it in the future. 
+
+The SGP40 is used to detect VOCs. Given temperature and humidity inputs, it returns a VOC index between 1 (ideal air quality) and 500 (very poor air quality). This index has a baseline of 100, and deviations represent changes in VOC over time. 
+
+The SPS30 sensor is used to determine ultrafine particle concentrations. It detects particle numbers concentrations in the range of 0-3000/cm³ and mass concentrations in the range of  1-1000µg/m³. It also returns a measure of typical particle size. 
+The number and mass concentration outputs represent distinct bins. There are five particle concentration bins - PM0.5 to PM10 - and four mass concentration bins - PM1 to PM10. The number following "PM" refers to the upper bound of the particle diameter range in micrometres (e.g. PM2.5 covers all particles from 0.3 μm up to 2.5 μm in diameter). 
+
+
+Circuit Description
+
+Sensors are connected to the ESP32 using a shared I2C bus. 
+
+
+Software Requirements
+
+Project written using PlatformIO. The Arduino IDE can likely also be used, though I have not tested this. 
+
+The following libraries are required: 
+lib_deps = 
+	adafruit/Adafruit BME680 Library@^2.0.6
+	adafruit/Adafruit Unified Sensor
+	adafruit/Adafruit BusIO
+	adafruit/Adafruit SGP40 Sensor@^1.1.4
+	sensirion/Sensirion Gas Index Algorithm
+	sensirion/Sensirion I2C SPS30@^1.0.0
+	esp32async/ESPAsyncWebServer@^3.10.3
+	esp32async/AsyncTCP@^3.4.10
+
+Ignore the following libraries: 
+lib_ignore = 
+	RPAsyncTCP
+	ESPAsyncTCP
+
+
+Usage
+
+Prior to uploading the code, replace the WIFI_SSID and WIFI_PASS values with your local network credentials. To access the server, you must be connected to the same network as the ESP32. 
+
+By default, the code will update sensor values every second. This can easily be modified by changing the TIMER_DELAY value. The SPS30 sensor cannot measure at a higher frequency than 1Hz. 
+
+Once the circuit is set up and code is loaded to the ESP32, it will begin printing sensor values to the serial monitor. The ESP32 should also automatically set up a web server. The address should be printed to the serial monitor. Navigating to the address will reveal a simple dashboard displaying atmospheric variables and charts showing VOC and particle concentrations. 
+
+Prior to measuring a print, the sensors should be given 5-10 minutes to set up baseline values. VOC measurements display deviation from previous measurements, rather than absolute values. 
+
