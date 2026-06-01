@@ -1,0 +1,4 @@
+(fp_lib_table
+	(version 7)
+	(lib (name "sgp40breakout") (type "KiCad") (uri "C:/Users/lynnm/OneDrive/Documents/Coding and Projects/Arduino/3D Printer Particle Monitor/PCB/Air Monitor/Imports/sgp40breakout.pretty") (options "") (descr ""))
+)
